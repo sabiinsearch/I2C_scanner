@@ -23,7 +23,9 @@ void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-  
+  for(uint8_t t=0; t<8; t++) {
+    Serial.print(F("Scanning TCA_Port#"));
+    Serial.println(t);
   for(uint8_t addr=0; addr<=127; addr++) {
     if(addr == MUX_ADDRESS) continue;
     Wire.beginTransmission(addr);
@@ -34,6 +36,7 @@ void setup()
        Serial.print(F("Found I2C at 0x"));
        Serial.println(addr);
     } 
+  }
   }
 } 
  
