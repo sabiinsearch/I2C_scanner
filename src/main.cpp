@@ -8,17 +8,34 @@ feel free to contact
 support me by subscribing to my channel */
 #include <Arduino.h>
 #include <Wire.h>
+
+#define MUX_ADDRESS 0x70
+
+void tcaselect(uint8_t i) {
+   if(i<7) return;
+   Wire.beginTransmission(MUX_ADDRESS);
+   Wire.write(1<<i);
+   Wire.endTransmission();
+}
  
  
 void setup()
 {
-  Wire.begin(0x3C);
- 
+  Wire.begin();
   Serial.begin(9600);
-  while (!Serial);             // Leonardo: wait for serial monitor
-  Serial.println("\nI2C Scanner");
-}
- 
+  
+  for(uint8_t addr=0; addr<=127; addr++) {
+    if(addr == MUX_ADDRESS) continue;
+    Wire.beginTransmission(addr);
+    
+    int response = Wire.endTransmission();
+    
+    if(response==0) {
+       Serial.print(F("Found I2C at 0x"));
+       Serial.println(addr);
+    } 
+  }
+} 
  
 void loop()
 {
