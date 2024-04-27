@@ -28,13 +28,15 @@ int get_full_charge_capacity(int bat_int) {
     byte byte_buffer[2];
     uint32_t myInt;
     
-    tcaselect(bat_int);
+//    tcaselect(bat_int);
 
-    switch(bat_int) {
-      
-      case 1:
+//    if (bat_int > 7) return;
 
-      // Wire.beginTransmission(MUX_ADDRESS);
+    Wire.beginTransmission(MUX_ADDRESS);
+    Wire.write(1 << bat_int);
+    Wire.endTransmission(); 
+
+         Wire.beginTransmission(MUX_ADDRESS);
          Wire.write(FULL_CHARGE_CAPACITY);
          Wire.endTransmission();
          Wire.requestFrom(MUX_ADDRESS,sizeof(byte_buffer));
@@ -46,28 +48,11 @@ int get_full_charge_capacity(int bat_int) {
          k++;
         }
           myInt = byte_buffer[0] + (byte_buffer[1] << 8);
+        //  myInt = byte_buffer[0] + byte_buffer[1];
+          byte_buffer[0] = byte_buffer[1]= NULL;
+          return myInt; 
+          //return 1;
 
-          break;
-      
-      case 2:
-      // Wire.beginTransmission(BAT_ADDRESS);
-         Wire.write(FULL_CHARGE_CAPACITY);
-         Wire.endTransmission();
-         Wire.requestFrom(MUX_ADDRESS,sizeof(byte_buffer));
-
-        int j=0;
-        while(0 < Wire.available())
-        {
-         byte_buffer[j] = Wire.read();
-         k++;
-        }
-         myInt = byte_buffer[0] + (byte_buffer[1] << 8);
-
-          break;
-        
-      default:
-          break;        
-    }
 }
 
 
@@ -85,7 +70,7 @@ void loop()
 {
   Serial.println(F("Capacity of "));
 
-    for (int i=1;i<3;i++) {
+    for (int i=0;i<2;i++) {
       
       Serial.print(F("Bat "));
       Serial.print(i);
