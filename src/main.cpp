@@ -29,6 +29,7 @@ int get_full_charge_capacity(int bat_int) {
     uint32_t myInt;
     
     tcaselect(bat_int);
+
     switch(bat_int) {
       
       case 1:
@@ -54,10 +55,10 @@ int get_full_charge_capacity(int bat_int) {
          Wire.endTransmission();
          Wire.requestFrom(MUX_ADDRESS,sizeof(byte_buffer));
 
-        int k=0;
+        int j=0;
         while(0 < Wire.available())
         {
-         byte_buffer[k] = Wire.read();
+         byte_buffer[j] = Wire.read();
          k++;
         }
          myInt = byte_buffer[0] + (byte_buffer[1] << 8);
@@ -79,16 +80,20 @@ void setup()
 }
  
  
-void loop()
-{
-    for (int i=1;i<3;i++) {
+void loop() 
 
+{
+  Serial.println(F("Capacity of "));
+
+    for (int i=1;i<3;i++) {
+      
       Serial.print(F("Bat "));
       Serial.print(i);
-      Serial.println(F(" Capacity: "));
+      Serial.print(F(": "));
       Serial.print(get_full_charge_capacity(i));
-      Serial.println(F(" "));
-      
-
+      Serial.print(F(" \t"));
+      delay(200); 
     }
+    Serial.println(F("\n"));
+    delay(1000); 
 }
