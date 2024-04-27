@@ -75,11 +75,12 @@ int get_full_charge_capacity(int bat_int) {
 
 void setup()
 {
+  Serial.begin(9600);
   
   bus_1.begin(4,5);
   bus_2.begin(2,3);
  
-  Serial.begin(9600);
+  
   while (!Serial);             // Leonardo: wait for serial monitor
   Serial.println("\nI2C Scanner");
 }
@@ -121,21 +122,15 @@ void loop()
  
 /************************  check input from batteries********/
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 1; i < 3; i++) {
       
-      I2CMulti.switchToBus(i);
-      //tcaselect(i);
-      delay(500);
-      // Wire.beginTransmission(MUX_Address);
-      // error = Wire.endTransmission();
-
-
       Serial.print(F("Capacity of Bat "));
       Serial.print(i);
       Serial.print(F(" "));
-      Serial.println(get_full_charge_capacity());
+      Serial.println(get_full_charge_capacity(i));
       Serial.println(F(""));
+      delay(500);
     }
 
-  delay(5000);           // wait 5 seconds for next scan
+  delay(1000);           // wait 5 seconds for next scan
 }
