@@ -38,6 +38,7 @@ void setup()
         //  Serial.print(F("Scanning port with address: 0x"));
         //  Serial.println(addr);
 */        
+
           for(uint8_t t=0; t<8; t++) { 
             tcaselect(t);
             Serial.print(F("TCA_Port#"));
@@ -62,6 +63,8 @@ void setup()
       //}
        delay(100);
      //}
+
+         Serial.println("Scanning..");     
 } 
  
 void loop()
