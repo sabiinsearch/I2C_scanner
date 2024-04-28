@@ -9,7 +9,11 @@ support me by subscribing to my channel */
 #include <Arduino.h>
 #include <Wire.h>
 
-#define MUX_ADDRESS 0x70
+
+#define MUX_ADDRESS 0x70 // TCA9548A Encoders address
+#define FULL_CHARGE_CAPACITY     0x10       // U2 word         return min
+#define BAT_ADDRESS              0x0B
+ 
 
 void tcaselect(uint8_t i) {
    //if(i<7) return;
