@@ -12,7 +12,7 @@ support me by subscribing to my channel */
 #define MUX_ADDRESS 0x70
 
 void tcaselect(uint8_t i) {
-   if(i<7) return;
+   //if(i<7) return;
    Wire.beginTransmission(MUX_ADDRESS);
    Wire.write(1<<i);
    Wire.endTransmission();
@@ -23,25 +23,50 @@ void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-  for(uint8_t t=0; t<8; t++) {
-    Serial.print(F("Scanning TCA_Port#"));
-    Serial.println(t);
-  for(uint8_t addr=0; addr<=127; addr++) {
-    if(addr == MUX_ADDRESS) continue;
-    Wire.beginTransmission(addr);
+/*
+  for (byte addr=0; addr<127; addr++) {
+      Wire.beginTransmission(addr);
+      int response = Wire.endTransmission();
+
+      if(response==0) {
+         Serial.print(F("Found I2C at 0x"));
+         Serial.println(addr,HEX);
+      }
+      
+
+        if(addr == MUX_ADDRESS) {
+        //  Serial.print(F("Scanning port with address: 0x"));
+        //  Serial.println(addr);
+*/        
+          for(uint8_t t=0; t<8; t++) { 
+            tcaselect(t);
+            Serial.print(F("TCA_Port#"));
+            Serial.println(t);
+            
+            for(byte mux_addr=0; mux_addr<=127; mux_addr++) {  
+
+              if(mux_addr==MUX_ADDRESS) continue;
+               
+                 Wire.beginTransmission(mux_addr);
+                 int response = Wire.endTransmission();
     
-    int response = Wire.endTransmission();
-    
-    if(response==0) {
-       Serial.print(F("Found I2C at 0x"));
-       Serial.println(addr);
-    } 
-  }
-  }
+                 if(response==0) {
+                  Serial.print(F("Found I2C at 0x"));
+                  Serial.println(mux_addr,HEX);
+              
+                 } 
+            }
+         }
+//    Serial.println("\n");
+//    delay(500);
+      //}
+       delay(100);
+     //}
 } 
  
 void loop()
 {
+ /*
   byte error, address;
   int nDevices;
  
@@ -82,4 +107,5 @@ void loop()
     Serial.println("done\n");
  
   delay(5000);           // wait 5 seconds for next scan
+  */
 }
