@@ -23,19 +23,11 @@ void tcaselect(uint8_t i) {
 }
  
 // Function to read Capacity of battery 
-int get_full_charge_capacity(int bat_int) {
+int get_full_charge_capacity() {
          
     byte byte_buffer[2];
     uint32_t myInt;
     
-//    tcaselect(bat_int);
-
-//    if (bat_int > 7) return;
-
-    Wire.beginTransmission(MUX_ADDRESS);
-    Wire.write(1 << bat_int);
-    Wire.endTransmission(); 
-
          Wire.beginTransmission(MUX_ADDRESS);
          Wire.write(FULL_CHARGE_CAPACITY);
          Wire.endTransmission();
@@ -59,21 +51,7 @@ void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-/*
-  for (byte addr=0; addr<127; addr++) {
-      Wire.beginTransmission(addr);
-      int response = Wire.endTransmission();
-
-      if(response==0) {
-         Serial.print(F("Found I2C at 0x"));
-         Serial.println(addr,HEX);
-      }
       
-
-        if(addr == MUX_ADDRESS) {
-        //  Serial.print(F("Scanning port with address: 0x"));
-        //  Serial.println(addr);
-*/        
 
           for(uint8_t t=0; t<8; t++) { 
             tcaselect(t);
@@ -89,9 +67,12 @@ void setup()
     
                  if(response==0) {
                   Serial.print(F("Found I2C at 0x"));
-                  Serial.println(mux_addr,HEX);
-              
+                  Serial.print(mux_addr,HEX);          
+                  Serial.print("\t");
+                  Serial.print("Charge Capacity: ");
+                  Serial.println(get_full_charge_capacity());
                  } 
+                  
             }
          }
 //    Serial.println("\n");
