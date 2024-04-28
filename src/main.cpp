@@ -64,7 +64,7 @@ void setup()
        delay(100);
      //}
 
-         Serial.println("Scanning..");     
+            
 } 
  
 void loop()
