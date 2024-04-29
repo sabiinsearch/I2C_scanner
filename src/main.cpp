@@ -13,6 +13,7 @@ support me by subscribing to my channel */
 #define MUX_ADDRESS 0x70 // TCA9548A Encoders address
 #define FULL_CHARGE_CAPACITY     0x10       // U2 word         return min
 #define BAT_ADDRESS              0x0B
+#define MFG_NAME                 0x20      // String
  
 
 void tcaselect(uint8_t i) {
@@ -46,6 +47,44 @@ int get_full_charge_capacity() {
           //return 1;
 
 } 
+
+    char * getManufacturerName() {
+
+    byte string_buffer[21];
+
+    static char char_array[20];
+     
+     Wire.begin();
+
+     Wire.beginTransmission(BAT_ADDRESS);
+
+     Wire.write(MFG_NAME);
+
+     Wire.endTransmission();
+
+     Wire.requestFrom(BAT_ADDRESS,sizeof(string_buffer));
+
+     int k=0;
+     while(0 < Wire.available())
+     {
+      string_buffer[k] = Wire.read();
+
+        if ((char)string_buffer[k] =='\0' ||  (char)string_buffer[k] =='&') { 
+            string_buffer[k] = ' ';           
+            break;
+        } 
+      k++;
+     }
+     
+     //char_value = (char * )malloc(20);
+
+     for(int n=0; n < k; n++) {
+        char_array[n] = (char)string_buffer[n+1]; 
+     }
+//         Serial.print(char_array);
+
+         return char_array;
+}
  
 void setup()
 {
@@ -69,8 +108,15 @@ void setup()
                   Serial.print(F("Found I2C at 0x"));
                   Serial.print(mux_addr,HEX);          
                   Serial.print("\t");
+                  
+                  Serial.print("Manufacturer: ");
+                  Serial.print(getManufacturerName());
+                  Serial.print("\t");
+
                   Serial.print("Charge Capacity: ");
                   Serial.println(get_full_charge_capacity());
+                  
+
                  } 
                   
             }
