@@ -9,7 +9,13 @@ support me by subscribing to my channel */
 #include <Arduino.h>
 #include <Wire.h>
 
-#define MUX_ADDRESS 0x70
+
+#define MUX_ADDRESS 0x70 // TCA9548A Encoders address
+#define FULL_CHARGE_CAPACITY     0x10       // U2 word         return mAh if CAPM bit = 0, 10 mWh if CAPM bit = 1
+#define BAT_ADDRESS              0x0B
+#define MFG_NAME                 0x20      // String
+#define DESIGN_CAPACITY          0x18     //  U2               return mAh if CAPM bit = 0, 10 mWh if CAPM bit = 1
+ 
 
 void tcaselect(uint8_t i) {
    //if(i<7) return;
@@ -18,26 +24,71 @@ void tcaselect(uint8_t i) {
    Wire.endTransmission();
 }
  
+// Function to read Capacity of battery 
+int get_design_capacity() {
+         
+    byte byte_buffer[2];
+    uint32_t myInt;
+    
+         Wire.beginTransmission(BAT_ADDRESS);
+         Wire.write(DESIGN_CAPACITY);
+         Wire.endTransmission();
+         Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
+
+        int k=0;
+        while(0 < Wire.available())
+        {
+         byte_buffer[k] = Wire.read();
+         k++;
+        }
+          myInt = byte_buffer[0] + (byte_buffer[1] << 8);
+          return myInt;           
+
+} 
+
+    char * getManufacturerName() {
+
+    byte string_buffer[21];
+
+    static char char_array[20];
+     
+     Wire.begin();
+
+     Wire.beginTransmission(BAT_ADDRESS);
+
+     Wire.write(MFG_NAME);
+
+     Wire.endTransmission();
+
+     Wire.requestFrom(BAT_ADDRESS,sizeof(string_buffer));
+
+     int k=0;
+     while(0 < Wire.available())
+     {
+      string_buffer[k] = Wire.read();
+
+        if ((char)string_buffer[k] =='\0' ||  (char)string_buffer[k] =='&') { 
+            string_buffer[k] = ' ';           
+            break;
+        } 
+      k++;
+     }
+     
+     //char_value = (char * )malloc(20);
+
+     for(int n=0; n < k; n++) {
+        char_array[n] = (char)string_buffer[n+1]; 
+     }
+//         Serial.print(char_array);
+
+         return char_array;
+}
  
 void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-/*
-  for (byte addr=0; addr<127; addr++) {
-      Wire.beginTransmission(addr);
-      int response = Wire.endTransmission();
-
-      if(response==0) {
-         Serial.print(F("Found I2C at 0x"));
-         Serial.println(addr,HEX);
-      }
       
-
-        if(addr == MUX_ADDRESS) {
-        //  Serial.print(F("Scanning port with address: 0x"));
-        //  Serial.println(addr);
-*/        
 
           for(uint8_t t=0; t<8; t++) { 
             tcaselect(t);
@@ -53,9 +104,19 @@ void setup()
     
                  if(response==0) {
                   Serial.print(F("Found I2C at 0x"));
-                  Serial.println(mux_addr,HEX);
-              
+                  Serial.print(mux_addr,HEX);          
+                  Serial.print("\t");
+                  
+                  Serial.print("Manufacturer: ");
+                  Serial.print(getManufacturerName());
+                  Serial.print("\t");
+
+                  Serial.print("Design Capacity: ");
+                  Serial.println(get_design_capacity());
+                  
+
                  } 
+                  
             }
          }
 //    Serial.println("\n");
@@ -69,46 +130,5 @@ void setup()
  
 void loop()
 {
- /*
-  byte error, address;
-  int nDevices;
- 
-  Serial.println("Scanning...");
- 
-  nDevices = 0;
-  for(address = 1; address < 127; address++ )
-  {
-    // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
-    // a device did acknowledge to the address.
-    Wire.beginTransmission(address);
-    error = Wire.endTransmission();
-    // Serial.print(F("checking address: "));
-    // Serial.println(address);
- 
-    if (error == 0)
-    {
-      Serial.print("I2C device found at address 0x");
-      if (address<16)
-        Serial.print("0");
-      Serial.print(address,HEX);
-      Serial.println("  !");
- 
-      nDevices++;
-    }
-    else if (error==4)
-    {
-      Serial.print("Unknown error at address 0x");
-      if (address<16)
-        Serial.print("0");
-      Serial.println(address,HEX);
-    }    
-  }
-  if (nDevices == 0)
-    Serial.println("No I2C devices found\n");
-  else
-    Serial.println("done\n");
- 
-  delay(5000);           // wait 5 seconds for next scan
-  */
+
 }
