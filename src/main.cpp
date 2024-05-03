@@ -14,6 +14,7 @@ support me by subscribing to my channel */
 #define FULL_CHARGE_CAPACITY     0x10       // U2 word         return min
 #define BAT_ADDRESS              0x0B
 #define MFG_NAME                 0x20      // String
+#define DESIGN_CAPACITY          0x18
  
 
 void tcaselect(uint8_t i) {
@@ -24,13 +25,13 @@ void tcaselect(uint8_t i) {
 }
  
 // Function to read Capacity of battery 
-int get_full_charge_capacity() {
+int get_design_capacity() {
          
-    byte byte_buffer[2];
+    byte byte_buffer[4];
     uint32_t myInt;
     
          Wire.beginTransmission(MUX_ADDRESS);
-         Wire.write(FULL_CHARGE_CAPACITY);
+         Wire.write(DESIGN_CAPACITY);
          Wire.endTransmission();
          Wire.requestFrom(MUX_ADDRESS,sizeof(byte_buffer));
 
@@ -40,9 +41,10 @@ int get_full_charge_capacity() {
          byte_buffer[k] = Wire.read();
          k++;
         }
-          myInt = byte_buffer[0] + (byte_buffer[1] << 8);
+        //  myInt = byte_buffer[0] + (byte_buffer[1] << 8);
+            myInt = (byte_buffer[0]<<8) + (byte_buffer[1]<6);
         //  myInt = byte_buffer[0] + byte_buffer[1];
-          byte_buffer[0] = byte_buffer[1]= NULL;
+        //  byte_buffer[0] = byte_buffer[1]= NULL;
           return myInt; 
           //return 1;
 
@@ -113,8 +115,8 @@ void setup()
                   Serial.print(getManufacturerName());
                   Serial.print("\t");
 
-                  Serial.print("Charge Capacity: ");
-                  Serial.println(get_full_charge_capacity());
+                  Serial.print("Design Capacity: ");
+                  Serial.println(get_design_capacity());
                   
 
                  } 
