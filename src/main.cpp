@@ -15,7 +15,7 @@ support me by subscribing to my channel */
 #define BAT_ADDRESS              0x0B
 #define MFG_NAME                 0x20      // String
 #define DESIGN_CAPACITY          0x18     //  U2               return mAh if CAPM bit = 0, 10 mWh if CAPM bit = 1
- 
+#define OLED_ADDRESS             0x3C 
 
 void tcaselect(uint8_t i) {
    //if(i<7) return;
@@ -88,45 +88,56 @@ void setup()
 {
   Wire.begin();
   Serial.begin(9600);
-      
+                 
+            for(byte addr=0; addr<=127; addr++) {  
+                
+                Wire.beginTransmission(addr);
+                int response = Wire.endTransmission();
 
-          for(uint8_t t=0; t<8; t++) { 
-            tcaselect(t);
-            Serial.print(F("TCA_Port#"));
-            Serial.println(t);
-            
-            for(byte mux_addr=0; mux_addr<=127; mux_addr++) {  
+                if(response==0) {
 
-              if(mux_addr==MUX_ADDRESS) continue;
-               
-                 Wire.beginTransmission(mux_addr);
-                 int response = Wire.endTransmission();
-    
-                 if(response==0) {
-                  Serial.print(F("Found I2C at 0x"));
-                  Serial.print(mux_addr,HEX);          
-                  Serial.print("\t");
+                  if(addr==MUX_ADDRESS) {
+
+                    for(uint8_t t=0; t<8; t++) { 
+                      tcaselect(t);
+                      Serial.print(F("TCA_Port#"));
+                      Serial.println(t);                                
+                      
+                      for(int mux_addr=0; mux_addr<127;mux_addr++) {
+
+                         if((mux_addr==MUX_ADDRESS) || (mux_addr==OLED_ADDRESS)) continue;
+
+                      Wire.beginTransmission(mux_addr);
+                      int response_local = Wire.endTransmission();
+          
+                       if(response_local==0) {
+
+                        Serial.print(F("Found I2C at 0x"));
+                        Serial.print(mux_addr,HEX);          
+                        Serial.print("\t");
+                        Serial.print("Manufacturer: ");
+                        Serial.print(getManufacturerName());
+                        Serial.print("\t");
+
+                        Serial.print("Design Capacity: ");
+                        Serial.println(get_design_capacity());                  
+
+                       }
+                      }
                   
-                  Serial.print("Manufacturer: ");
-                  Serial.print(getManufacturerName());
-                  Serial.print("\t");
+                }
+              }
 
-                  Serial.print("Design Capacity: ");
-                  Serial.println(get_design_capacity());
+            Serial.print(F("Found I2C at 0x"));
+            Serial.print(addr,HEX);          
+            Serial.print(" - \t");
+                  
+            }                
                   
 
-                 } 
+          } 
                   
-            }
-         }
-//    Serial.println("\n");
-//    delay(500);
-      //}
-       delay(100);
-     //}
-
-            
-} 
+}         
  
 void loop()
 {
