@@ -11,10 +11,10 @@ support me by subscribing to my channel */
 
 
 #define MUX_ADDRESS 0x70 // TCA9548A Encoders address
-#define FULL_CHARGE_CAPACITY     0x10       // U2 word         return min
+#define FULL_CHARGE_CAPACITY     0x10       // U2 word         return mAh if CAPM bit = 0, 10 mWh if CAPM bit = 1
 #define BAT_ADDRESS              0x0B
 #define MFG_NAME                 0x20      // String
-#define DESIGN_CAPACITY          0x18
+#define DESIGN_CAPACITY          0x18     //  U2               return mAh if CAPM bit = 0, 10 mWh if CAPM bit = 1
  
 
 void tcaselect(uint8_t i) {
@@ -27,13 +27,13 @@ void tcaselect(uint8_t i) {
 // Function to read Capacity of battery 
 int get_design_capacity() {
          
-    byte byte_buffer[4];
+    byte byte_buffer[2];
     uint32_t myInt;
     
-         Wire.beginTransmission(MUX_ADDRESS);
+         Wire.beginTransmission(BAT_ADDRESS);
          Wire.write(DESIGN_CAPACITY);
          Wire.endTransmission();
-         Wire.requestFrom(MUX_ADDRESS,sizeof(byte_buffer));
+         Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
         int k=0;
         while(0 < Wire.available())
@@ -41,12 +41,8 @@ int get_design_capacity() {
          byte_buffer[k] = Wire.read();
          k++;
         }
-        //  myInt = byte_buffer[0] + (byte_buffer[1] << 8);
-            myInt = (byte_buffer[0]<<8) + (byte_buffer[1]<6);
-        //  myInt = byte_buffer[0] + byte_buffer[1];
-        //  byte_buffer[0] = byte_buffer[1]= NULL;
-          return myInt; 
-          //return 1;
+          myInt = byte_buffer[0] + (byte_buffer[1] << 8);
+          return myInt;           
 
 } 
 
