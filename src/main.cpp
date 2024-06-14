@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+
+int button_pin = 5;
+
 // Set I2C bus to use: Wire, Wire1, etc.
 #define WIRE Wire
 
@@ -8,6 +11,10 @@ void setup() {
   WIRE.begin();
 
   Serial.begin(9600);
+
+  pinMode(button_pin,INPUT);
+
+
   while (!Serial)
      delay(10);
   Serial.println("\nI2C Scanner");
@@ -17,6 +24,7 @@ void setup() {
 void loop() {
   byte error, address;
   int nDevices;
+  if(!(digitalRead(button_pin)==HIGH)) {
 
   Serial.println("Scanning...");
 
@@ -51,6 +59,7 @@ void loop() {
     Serial.println("No I2C devices found\n");
   else
     Serial.println("done\n");
-
+  }
   delay(5000);           // wait 5 seconds for next scan
+
 }
